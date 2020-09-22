@@ -1,3 +1,11 @@
+/******************************************************************************
+                            
+                Author  	: NGUYEN HUY THAI
+                From 		: KT22_LEGEND
+                Gmail     : thaibk.nh0601@gmail.com
+
+*******************************************************************************/
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 

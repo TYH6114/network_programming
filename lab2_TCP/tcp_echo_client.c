@@ -1,22 +1,16 @@
+/******************************************************************************
+                            
+                Author  	: NGUYEN HUY THAI
+                From 		: KT22_LEGEND
+                Gmail     : thaibk.nh0601@gmail.com
+
+*******************************************************************************/
+
+
+
+
 #pragma comment(lib, "Ws2_32.lib")
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-/*
-Processed in client
-+ connect(
-SOCKET s; //socket client using commnication with server
-const struct sockaddr * name, //address of server
-int namelen //sizeof(name)
-)
-+ value return: 0 (success), SOCKET_ERROR (failed)
-
-+ send(
-SOCKET s, \\socket was used
-const char *buff, \\buffer contains data
-int len, \\ sizeof(buff)
-int flags \\ flags control (0)
-)
-*/
-
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>

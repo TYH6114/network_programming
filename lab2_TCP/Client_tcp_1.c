@@ -6,6 +6,28 @@
 
 *******************************************************************************/
 
+
+
+/********************************************************************************
+		Processed in client
+				+ connect(
+					SOCKET s; //socket client using commnication with server
+					const struct sockaddr * name, //address of server
+					int namelen //sizeof(name)
+				)
+				+ value return: 0 (success), SOCKET_ERROR (failed)
+
+				+ send(
+					SOCKET s, \\socket was used
+					const char *buff, \\buffer contains data
+					int len, \\ sizeof(buff)
+					int flags \\ flags control (0)
+				)
+********************************************************************************/
+
+#pragma comment(lib, "Ws2_32.lib")
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -22,11 +44,14 @@
 
 #define BUFF_SIZE 2048
 
+
 int validate_IP(char *);
 int validate_number(char *str);
 
-int main(int argc, char **argv)
-{
+
+int main(int argc, char ** argv) {
+
+
 	//Step 0: validate input from arguments
 	int port_number;
 	char ipserverAddress[20];
@@ -41,6 +66,7 @@ int main(int argc, char **argv)
 		//check ip serverAddress
 
 		strcpy(ipserverAddress, argv[1]);
+		//Note: after ipserverAddress pass on validate_IP function, it's will change value
 		if (validate_IP(ipserverAddress) == 0) {
 			printf("Failed!!!! Your ip serverAddress is invalid.Check against.\n");
 			return 1;
@@ -48,90 +74,85 @@ int main(int argc, char **argv)
 
 		//check port numner
 		port_number = atoi(argv[2]);
-		printf("port_number: %d\n", port_number);
 		if (port_number <= 0 || port_number > 65353) {
 			printf("Failed!!! Your port is invalid (please, give port in (0,65353] ).\n");
 			return 1;
 		}
 	}
-
+	printf("port_number: %d\t ip_server: %s\n", port_number, argv[1]);
 
 
 	//Step 1: Initiate winsock
 	WSADATA wsaData;
 	WORD wVersion = MAKEWORD(2, 2);
-
-	if (WSAStartup(wVersion, &wsaData) != 0) {
+	if (WSAStartup(wVersion, &wsaData)) {
 		printf("Version is not supported.\n");
-		return 1;
+		return 0;
 	}
 
-	printf("Client started!\n");
-
-
-
-
-	//Step 2: Initiate socket
+	//Step 2: Construct socket
 	SOCKET client;
-	client = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-	//set time-out when send data to server
-	int tv = 10000;//time-out 10000ms
+	//Set time-out for receiving: 1000ms
+	int tv = 10000;
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char *)(&tv), sizeof(int));
-	
 
-	//Step 3: bind serverAddress to socket
+	//Step 3: Specify server address
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(port_number);
 	serverAddr.sin_addr.s_addr = inet_addr(argv[1]);
 
+	//Step 4: Request to connect server
+	if (connect(client, (sockaddr *)&serverAddr, sizeof(serverAddr))) {
+		printf("Error ! Cannot connect server. Error code: %d\n", WSAGetLastError());
+		_getch();
+		return 0;
+	}
 
-	//Step 4: Communicate with server
+	printf("Connected server!!!.\n");
+
+	//Step 5: Communicate with client
+
 	char buff[BUFF_SIZE];
-	int ret, serverAddrLen = sizeof(serverAddr);
-	/*when contact with client, information of client will save in serverserverAddr
-	about: + ip serverAddress, port number, information after server process
-	*/
+	int ret;
 
-	do {
-		ZeroMemory(buff, BUFF_SIZE);
-		fflush(stdin);
-		//Send data to server
-		printf("Message to server >> ");
+	while(1) {
+		memset(buff, '\0', BUFF_SIZE);
+		printf("Send to server>> ");
 		gets_s(buff, BUFF_SIZE);
-		ret = sendto(client, buff, strlen(buff), 0, (sockaddr *)&serverAddr, serverAddrLen);
+
+		//Send buff to server
+		ret = send(client, buff, strlen(buff), 0);
 		if (ret == SOCKET_ERROR) {
-			printf("Send data to server with error, code: %d\n", WSAGetLastError());
+			printf("Error,Cannot send message.\n");
+			return 0;
 		}
-		else {
-			//Receive data from server
-			buff[0] = 0;
-			ret = recvfrom(client, buff, BUFF_SIZE, 0, (sockaddr*)&serverAddr, &serverAddrLen);
-			if (ret == SOCKET_ERROR) {		
-				printf("Error! Cannot receive message.");
-				printf("Code error: %d\n", WSAGetLastError());
-			}
-			else if (strlen(buff) > 0) {
-				buff[ret] = 0;
-				printf("Receive from server: \n");
-				printf("%s\n", buff);
-			}
+		if (strcmp(buff, "") == 0) break;
 
+		//Receive echo message
+		ret = recv(client, buff, BUFF_SIZE, 0);
+		if (ret == SOCKET_ERROR) {
+			if (WSAGetLastError() == WSAETIMEDOUT)
+				printf("Time-out");
+			else
+				printf("Error, Cannot receive message.");
 		}
+		else if (strlen(buff) > 0) {
+			buff[ret] = '\0';
+			printf("%s\n",buff);
+		}
+	}
 
-		//Convert to Uppercase letter
-
-	} while (strcmp(buff, "bye") != 0);//end while
-
-									   //Step 5: Close socket
+	//Step 6: Close socket
 	closesocket(client);
 
-	//Step 6: Terminate winsock
+	//Step 7: Terminat winsock
 	WSACleanup();
 
+	_getch();
 	return 0;
-
 }
 
 

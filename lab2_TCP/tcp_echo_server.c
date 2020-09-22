@@ -1,34 +1,12 @@
-/*
-The characteristics of TCP protocol
-Connection oriented
-+ Three step handshake
-- SYN (connect())
-- SYN/ACK (listen() -> send SYN_RECEIVED)
-- ACK (connect() response ACK -> push the queue )
-Reliable, byte stream data transmission protocol
-+ Using buffer
-Pipeline transmission type
-+ increase effective
+/******************************************************************************
+                            
+                Author  	: NGUYEN HUY THAI
+                From 		: KT22_LEGEND
+                Gmail     : thaibk.nh0601@gmail.com
 
-Process in server:
-socket() -> bind() -> listen() -> accept()
--> recv() -> send() -> shutdown() -> closesocket()
+*******************************************************************************/
 
 
-*/
-
-/*
-+> listen(SOCKET s, int backlog) :
-- s 		: socket was created by socket()
-- backlog   : long of queue when wait client connect
-+ return value:
-- success: 0
-- failed : SOCKET_ERROR
-+> accept(SOCKET s, struct sockaddr * addr, int *addrLen)
-- s 		: socket in listen's state
-- addr 		: address of client which want to connect with server
-- addrLen   : sizeof (addr)
-*/
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
