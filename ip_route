@@ -4,5 +4,10 @@
       + add :100  name_table (define with own purpose) path to file : /etc/iproute2/rt_tables
       + set priority: ip rule add priority 1000
       + add route to table:   ip route add table name_table 0.0.0.0/0 via 192.168.0.1 dev eth1 src 192.168.100.9
-      
+
+
+ip route add {NETWORK/MASK} via {GATEWAY_IP}
+ip route add {NETWORK/MASK}  dev {DEVICE}
+ip route add default {NETWORK/MASK} dev {DEVICE}
+ip route add default {NETWORK/MASK} via {GATEWAY_IP}
   
