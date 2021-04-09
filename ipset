@@ -1,0 +1,5 @@
++ Add new ip:mac 
+
+ipset create foo bitmap:ip,mac range 192.168.0.0/16
+ipset add foo 192.168.1.1,12:34:56:78:9A:BC
+ipset test foo 192.168.1.1
